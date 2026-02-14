@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Ping</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_sign_up">SIgnUpActivity</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_chat_list">ChatListActivity</string>
+    <string name="title_activity_add_chat">AddChatActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
+</resources>

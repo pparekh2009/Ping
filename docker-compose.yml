@@ -1,0 +1,15 @@
+services:
+    ping_db:
+        image: postgres:latest
+        container_name: ping-db
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: ping_db
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: piyu2009
+        volumes:
+            - ping_db_data:/var/lib/postgresql/data
+
+volumes:
+    ping_db_data:
