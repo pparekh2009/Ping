@@ -1,22 +1,20 @@
 package com.priyanshparekh.ping.chat;
 
 import com.priyanshparekh.ping.chat.dto.AddChatRequest;
-import com.priyanshparekh.ping.chat.dto.GetChatResponse;
 import com.priyanshparekh.ping.chat.dto.ChatListResponse;
+import com.priyanshparekh.ping.chat.dto.ChatResponse;
 import com.priyanshparekh.ping.chatparticipant.ChatParticipant;
 import com.priyanshparekh.ping.chatparticipant.ChatParticipantRepository;
-import com.priyanshparekh.ping.chat.projection.ChatListProjection;
+import com.priyanshparekh.ping.error.exception.ChatExistsException;
 import com.priyanshparekh.ping.security.PingUserDetails;
 import com.priyanshparekh.ping.user.User;
 import com.priyanshparekh.ping.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,9 +37,11 @@ public class ChatService {
 
 
         Optional<Chat> existingChat = chatParticipantRepository.findOneToOneChat(user1.getId(), addChatRequest.getUserId());
+        log.info("chatService: addChat: existingChat: {}", existingChat);
 
         if (existingChat.isPresent()) {
-            return;
+            log.info("chatService: addChat: chat already exists");
+            throw new ChatExistsException();
         }
 
 
@@ -68,15 +68,17 @@ public class ChatService {
     }
 
 
-    public List<GetChatResponse> getAllChats() {
+    public ChatListResponse getAllChats() {
         User user = ((PingUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
 
-        return chatRepository.findAllChats(user.getId()).stream().map(chatProjection -> {
+        List<ChatResponse>  chatList = chatRepository.findAllChats(user.getId()).stream().map(chatProjection -> {
             log.info("chatService: getAllChats: chat id: {}", chatProjection.getId());
-            return GetChatResponse.builder()
+            return ChatResponse.builder()
                     .chatId(chatProjection.getId())
                     .name(chatProjection.getName())
                     .build();
         }).toList();
+
+        return ChatListResponse.builder().chatList(chatList).build();
     }
 }

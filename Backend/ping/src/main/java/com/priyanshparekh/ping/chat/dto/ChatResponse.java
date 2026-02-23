@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetChatResponse {
+public class ChatResponse {
 
-    private Long chatId;
     private String name;
+    private Long chatId;
 
 }

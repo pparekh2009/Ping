@@ -1,5 +1,6 @@
 package com.priyanshparekh.ping.error;
 
+import com.priyanshparekh.ping.error.exception.ChatExistsException;
 import com.priyanshparekh.ping.error.exception.UsernameExistsException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,19 @@ public class GlobalExceptionHandler {
                         ErrorResponse.builder()
                                 .code(HttpStatus.BAD_REQUEST.value())
                                 .message("Invalid email or password")
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(exception = ChatExistsException.class)
+    public ResponseEntity<@NonNull ErrorResponse> handleChatExistsException(ChatExistsException ex) {
+        log.info("globalExceptionHandler: handleChatExistsException: message: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.builder()
+                                .code(HttpStatus.CONFLICT.value())
+                                .message(ex.getMessage())
                                 .build()
                 );
     }

@@ -3,15 +3,13 @@ package com.priyanshparekh.ping.message;
 import com.priyanshparekh.ping.chat.Chat;
 import com.priyanshparekh.ping.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "messages")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message {
@@ -33,4 +31,7 @@ public class Message {
 
     private String text;
 
+    @Column(name = "message_status")
+    @Enumerated(value = EnumType.STRING)
+    private ChatMessageStatus chatMessageStatus;
 }

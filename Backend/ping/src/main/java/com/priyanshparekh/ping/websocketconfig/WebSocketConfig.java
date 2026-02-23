@@ -1,5 +1,6 @@
 package com.priyanshparekh.ping.websocketconfig;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
@@ -10,7 +11,11 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 @Configuration
 @EnableWebSocket
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
+
+    private final PingWebSocketHandler pingWebSocketHandler;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -22,12 +27,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     WebSocketHandler webSocketHandler() {
-        return new ChatWebSocketHandler();
+        return pingWebSocketHandler;
     }
 
     @Bean
     HandshakeInterceptor handshakeInterceptor() {
-        return new JwtHandshakeInterceptor();
+        return jwtHandshakeInterceptor;
     }
 
 }
