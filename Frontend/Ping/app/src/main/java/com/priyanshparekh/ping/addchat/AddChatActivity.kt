@@ -5,17 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.imeNestedScroll
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.collectAsState
-import com.priyanshparekh.ping.addchat.dto.AddChatRequest
+import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.priyanshparekh.ping.ui.theme.PingTheme
 
 class AddChatActivity : ComponentActivity() {
 
     val addChatViewModel: AddChatViewModel by viewModels()
 
+    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
 
             val uiState = addChatViewModel.addChatUiState.collectAsState()
@@ -37,7 +45,8 @@ class AddChatActivity : ComponentActivity() {
                     },
                     onAddChatResultClick = { userId ->
                         addChatViewModel.addNewChat(userId)
-                    }
+                    },
+                    modifier = Modifier.imePadding().imeNestedScroll()
                 )
             }
         }

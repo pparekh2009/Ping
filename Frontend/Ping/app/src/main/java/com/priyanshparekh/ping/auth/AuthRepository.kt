@@ -13,16 +13,16 @@ import com.priyanshparekh.ping.network.RetrofitInstance
 
 class AuthRepository {
 
+    private val tag = "Auth_Repository"
 
     fun getAccessToken() = dataStoreManager.getAccessToken()
-
 
     suspend fun signUp(userSignUpRequest: UserSignUpRequest): ApiResponse<UserSignUpResponse> {
         return try {
             val response = RetrofitInstance.api.signUp(userSignUpRequest)
             val code = response.code()
             val error = response.errorBody()?.string()
-            Log.d("TAG", "authRepository: signUp: code: $code")
+            Log.d(tag, "signUp: code: $code")
 
             if (response.isSuccessful) {
                 val body = response.body()
@@ -48,7 +48,7 @@ class AuthRepository {
             val response = RetrofitInstance.api.login(userLoginRequest)
             val code = response.code()
             val error = response.errorBody()?.string()
-            Log.d("TAG", "authRepository: login: code: $code")
+            Log.d(tag, "login: code: $code")
 
             if (response.isSuccessful) {
                 val body = response.body()
@@ -61,7 +61,7 @@ class AuthRepository {
                     ApiResponse.ERROR("Empty Response Object")
                 }
             } else {
-                Log.d("TAG", "authRepository: login: error: $error")
+                Log.d(tag, "login: error: $error")
                 val errorResponse = Gson().fromJson(error, ErrorResponse::class.java)
                 ApiResponse.ERROR(errorResponse.message)
             }

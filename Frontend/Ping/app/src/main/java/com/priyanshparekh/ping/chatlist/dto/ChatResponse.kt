@@ -1,6 +1,6 @@
 package com.priyanshparekh.ping.chatlist.dto
 
-data class GetChatResponse(
+data class ChatResponse(
     val chatId: Long,
     val name: String
 )

@@ -32,7 +32,7 @@ class ChatActivity : ComponentActivity() {
                         chatUiState = uiState.value,
                         onMessageInputChange = chatViewModel::onMessageInputChange,
                         onSendClick = {
-                            chatViewModel.sendMessage(chatId)
+                            chatViewModel.sendChatMessage(chatId)
                         },
                         modifier = Modifier.padding(innerPadding)
                     )

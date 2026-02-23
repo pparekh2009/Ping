@@ -11,6 +11,7 @@ import com.priyanshparekh.ping.auth.login.dto.UserLoginRequest
 import com.priyanshparekh.ping.auth.signup.SignUpUiState
 import com.priyanshparekh.ping.auth.signup.dto.UserSignUpRequest
 import com.priyanshparekh.ping.network.ApiResponse
+import com.priyanshparekh.ping.startup.AuthStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -19,20 +20,23 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel: ViewModel() {
 
+    private val tag = "Auth_View_Model"
+
     private val authRepository = AuthRepository()
 
-    var isCheckingAuth by mutableStateOf(true)
-        private set
-
-    var isLoggedIn = MutableStateFlow<Boolean>(false)
-
+    private val _authStatus: MutableStateFlow<AuthStatus> = MutableStateFlow(AuthStatus())
+    val authStatus: StateFlow<AuthStatus> = _authStatus
 
     fun checkAuth() {
         viewModelScope.launch {
             val token = authRepository.getAccessToken().first()
-            Log.d("TAG", "authViewModel: checkAuth: token: $token")
-            isLoggedIn.value = token != null
-            isCheckingAuth  = false
+            Log.d(tag, "checkAuth: token: $token")
+            _authStatus.update {
+                it.copy(
+                    isChecking = false,
+                    isLoggedIn = token != null
+                )
+            }
         }
     }
 
@@ -122,8 +126,8 @@ class AuthViewModel: ViewModel() {
     }
 
     fun login() {
-        Log.d("TAG", "login: email: ${_loginUiState.value.email}")
-        Log.d("TAG", "login: password: ${_loginUiState.value.password}")
+        Log.d(tag, "login: email: ${_loginUiState.value.email}")
+        Log.d(tag, "login: password: ${_loginUiState.value.password}")
 
         if (_loginUiState.value.isLoading) return
 
@@ -160,7 +164,7 @@ class AuthViewModel: ViewModel() {
                     }
                 }
                 is ApiResponse.ERROR -> {
-                    Log.d("TAG", "authViewModel: login: message: ${loginResponse.message}")
+                    Log.d(tag, "login: message: ${loginResponse.message}")
                     _loginUiState.update {
                         it.copy(isLoading = false, isLoginSuccessful = false, errorMessage = loginResponse.message)
                     }

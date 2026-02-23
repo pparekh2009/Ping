@@ -2,7 +2,7 @@ package com.priyanshparekh.ping.chatlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.priyanshparekh.ping.chatlist.dto.GetChatResponse
+import com.priyanshparekh.ping.chatlist.dto.ChatResponse
 import com.priyanshparekh.ping.network.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ class ChatListViewModel : ViewModel() {
     private val _chatListUiState: MutableStateFlow<ChatListUiState> = MutableStateFlow(ChatListUiState())
     val chatListUiState: StateFlow<ChatListUiState> = _chatListUiState
 
-    private val _unfilteredChatList: MutableStateFlow<List<GetChatResponse>> = MutableStateFlow(listOf())
+    private val _unfilteredChatList: MutableStateFlow<List<ChatResponse>> = MutableStateFlow(listOf())
 
     fun getChatList() {
         viewModelScope.launch {
@@ -25,9 +25,9 @@ class ChatListViewModel : ViewModel() {
             when (response) {
                 is ApiResponse.SUCCESS -> {
                     _chatListUiState.update {
-                        it.copy(chatList = response.data)
+                        it.copy(chatList = response.data.chatList)
                     }
-                    _unfilteredChatList.value = response.data
+                    _unfilteredChatList.value = response.data.chatList
                 }
                 is ApiResponse.ERROR -> {
                     _chatListUiState.update {

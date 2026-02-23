@@ -1,9 +1,9 @@
 package com.priyanshparekh.ping.chatlist
 
-import com.priyanshparekh.ping.chatlist.dto.GetChatResponse
+import com.priyanshparekh.ping.chatlist.dto.ChatResponse
 
 data class ChatListUiState(
     var searchInput: String = "",
-    val chatList: List<GetChatResponse> = listOf(),
+    val chatList: List<ChatResponse> = listOf(),
     val errorMessage: String? = null
 )

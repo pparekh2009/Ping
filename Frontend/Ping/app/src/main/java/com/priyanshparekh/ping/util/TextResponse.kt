@@ -1,5 +1,5 @@
 package com.priyanshparekh.ping.util
 
-data class MessageResponse(
+data class TextResponse(
     val message: String
 )

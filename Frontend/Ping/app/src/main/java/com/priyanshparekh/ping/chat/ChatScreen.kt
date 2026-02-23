@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -84,6 +83,44 @@ fun ChatHeader(name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun Conversations(chatUiState: ChatUiState, modifier: Modifier = Modifier) {
+
+    LazyColumn(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        reverseLayout = true
+    ) {
+        items(chatUiState.chatMessageUis.asReversed()) { message ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                horizontalArrangement = if (message.isOutgoing) Arrangement.End else Arrangement.Start
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f),
+                    horizontalArrangement = if (message.isOutgoing) Arrangement.End else Arrangement.Start
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(10.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(message.chatMessage)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun Keyboard(
     messageInput: String,
     onMessageInputChange: (String) -> Unit,
@@ -129,44 +166,6 @@ fun Keyboard(
                 contentDescription = "Send",
                 tint = MaterialTheme.colorScheme.onPrimary
             )
-        }
-    }
-}
-
-@Composable
-fun Conversations(chatUiState: ChatUiState, modifier: Modifier = Modifier) {
-
-    LazyColumn(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        reverseLayout = true
-    ) {
-        items(chatUiState.messages.asReversed()) { message ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp),
-                horizontalArrangement = if (message.isSent) Arrangement.End else Arrangement.Start
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(0.6f),
-                    horizontalArrangement = if (message.isSent) Arrangement.End else Arrangement.Start
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(32.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                            .padding(10.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(message.content)
-                    }
-                }
-            }
         }
     }
 }

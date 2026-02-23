@@ -16,6 +16,8 @@ import com.priyanshparekh.ping.ui.theme.PingTheme
 
 class ChatListActivity : ComponentActivity() {
 
+    private val tag = "Chat_List_Activity"
+
     val chatListViewModel: ChatListViewModel by viewModels()
     val authViewModel: AuthViewModel by viewModels()
 
@@ -38,7 +40,7 @@ class ChatListActivity : ComponentActivity() {
                         finish()
                     },
                     onChatClick = { chatId, name ->
-                        Log.d("TAG", "chatListActivity: onCreate: chatId: $chatId")
+                        Log.d(tag, "onCreate: chatId: $chatId")
                         val intent = Intent(this, ChatActivity::class.java)
                         intent.putExtra("chatId", chatId)
                         intent.putExtra("name", name)

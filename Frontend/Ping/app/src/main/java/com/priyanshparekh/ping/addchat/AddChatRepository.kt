@@ -7,44 +7,46 @@ import com.priyanshparekh.ping.network.ApiResponse
 import com.priyanshparekh.ping.network.ErrorResponse
 import com.priyanshparekh.ping.network.RetrofitInstance
 import com.priyanshparekh.ping.user.User
-import com.priyanshparekh.ping.util.MessageResponse
+import com.priyanshparekh.ping.util.TextResponse
 
 class AddChatRepository {
+
+    private val tag = "Add_Chat_Repository"
 
     suspend fun search(query: String) : ApiResponse<List<User>> {
         return try {
             val response = RetrofitInstance.api.search(query)
             val error = response.errorBody()?.string()
             val code = response.code()
-            Log.d("TAG", "addChatRepository: search: code: $code")
+            Log.d(tag, "search: code: $code")
 
             if (response.isSuccessful) {
                 val body = response.body()
 
                 if (body != null) {
-                    Log.d("TAG", "addChatRepository: search: body: ${body.size}")
+                    Log.d(tag, "search: body: ${body.size}")
                     ApiResponse.SUCCESS(body)
                 } else {
-                    Log.d("TAG", "addChatRepository: search: Empty Response Object")
+                    Log.d(tag, "search: Empty Response Object")
                     ApiResponse.ERROR("Empty Response Object")
                 }
             } else {
                 val error = Gson().fromJson(error, ErrorResponse::class.java)
-                Log.d("TAG", "addChatRepository: search: error: ${error.message}")
+                Log.d(tag, "search: error: ${error.message}")
                 ApiResponse.ERROR(error.message)
             }
         } catch (ex: Exception) {
-            Log.d("TAG", "addChatRepository: search: ex: ${ex.message}")
+            Log.d(tag, "search: ex: ${ex.message}")
             ApiResponse.ERROR(ex.message.toString())
         }
     }
 
-    suspend fun addNewChat(addChatRequest: AddChatRequest): ApiResponse<MessageResponse> {
+    suspend fun addNewChat(addChatRequest: AddChatRequest): ApiResponse<TextResponse> {
         return try {
             val response = RetrofitInstance.api.addChat(addChatRequest)
             val error = response.errorBody()?.string()
             val code = response.code()
-            Log.d("TAG", "addChatRepository: addNewChat: code: $code")
+            Log.d(tag, "addNewChat: code: $code")
 
             if (response.isSuccessful) {
                 val body = response.body()
@@ -55,7 +57,8 @@ class AddChatRepository {
                     ApiResponse.ERROR("Empty Response Object")
                 }
             } else {
-                ApiResponse.ERROR(error.toString())
+                val errorMessage = Gson().fromJson(error, ErrorResponse::class.java)
+                ApiResponse.ERROR(errorMessage.message)
             }
         } catch (ex: Exception) {
             ApiResponse.ERROR(ex.message.toString())

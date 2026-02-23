@@ -10,14 +10,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
 
+    private val tag = "Retrofit_Instance"
+
     private val client = OkHttpClient.Builder()
         .cache(null)
         .addInterceptor { chain ->
-            Log.d("TAG", "retrofitInstance: client: tokenDataStore requested")
+            Log.d(tag, "client: tokenDataStore requested")
             val token: String = runBlocking {
                 dataStoreManager.getAccessToken().first() ?: ""
             }
-            Log.d("TAG", "retrofitInstance: client: token: $token")
+            Log.d(tag, "client: token: $token")
             val request = chain.request().newBuilder()
                 .header("Cache-Control", "no-cache")
                 .header("Pragma", "no-cache")

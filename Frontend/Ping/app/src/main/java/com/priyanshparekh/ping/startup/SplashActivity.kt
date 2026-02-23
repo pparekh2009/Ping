@@ -3,6 +3,7 @@ package com.priyanshparekh.ping.startup
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -19,6 +20,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
+    private val tag = "Splash_Activity"
+
     val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,24 +29,27 @@ class SplashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        authViewModel.checkAuth()
-
         splashScreen.setKeepOnScreenCondition {
-            authViewModel.isCheckingAuth
+            Log.d(tag, "onCreate: setKeepOnScreenCondition: isChecking: ${authViewModel.authStatus.value.isChecking}")
+            authViewModel.authStatus.value.isChecking
         }
 
+        authViewModel.checkAuth()
+
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                authViewModel.isLoggedIn.collect { isLoggedIn ->
-                    if (isLoggedIn) {
-                        if (!WebSocketManager.isConnected()) {
-                            WebSocketManager.connect()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authStatus.collect { authStatus ->
+                    if (!authStatus.isChecking) {
+                        if (authStatus.isLoggedIn) {
+                            if (!WebSocketManager.isConnected()) {
+                                WebSocketManager.connect()
+                            }
+                            startActivity(Intent(this@SplashActivity, ChatListActivity::class.java))
+                        } else {
+                            startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
                         }
-                        startActivity(Intent(this@SplashActivity, ChatListActivity::class.java))
-                    } else {
-                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+                        finish()
                     }
-                    finish()
                 }
             }
         }

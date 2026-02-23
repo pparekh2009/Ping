@@ -7,6 +7,9 @@ import com.google.gson.Gson
 import com.priyanshparekh.ping.Ping.Companion.dataStoreManager
 import com.priyanshparekh.ping.network.ApiResponse
 import com.priyanshparekh.ping.network.WebSocketManager
+import com.priyanshparekh.ping.websocket.SocketEvent
+import com.priyanshparekh.ping.websocket.SocketEventPayload.ChatMessagePayload
+import com.priyanshparekh.ping.websocket.SocketEventType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -15,13 +18,15 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel: ViewModel() {
 
+    private val tag = "Chat_View_Model"
+
     private val _chatUiState: MutableStateFlow<ChatUiState> = MutableStateFlow(ChatUiState())
     val chatUiState: StateFlow<ChatUiState> = _chatUiState
 
     private val chatRepository = ChatRepository()
 
     init {
-        updateMessages()
+        observeIncomingMessages()
     }
 
     fun onMessageInputChange(messageInput: String) {
@@ -30,44 +35,49 @@ class ChatViewModel: ViewModel() {
         }
     }
 
-    fun sendMessage(chatId: Long) {
+    fun sendChatMessage(chatId: Long) {
         viewModelScope.launch {
-            var messageContent = _chatUiState.value.messageInput
+            var chatMessageInput = _chatUiState.value.messageInput
 
-            if (messageContent.isBlank()) {
-                messageContent = "Sample Message"
+            if (chatMessageInput.isBlank()) {
+                chatMessageInput = "Sample Message"
             }
 
             val userId = dataStoreManager.getUserId().first() as Long
-            val messagePayload = MessagePayload(MessageType.CHAT_MESSAGE, userId, chatId, messageContent)
 
-            WebSocketManager.send(Gson().toJson(messagePayload))
+            val chatMessagePayload = ChatMessagePayload(-1L, chatId, userId, chatMessageInput)
+            val chatMessagePayloadJson = Gson().toJsonTree(chatMessagePayload)
 
-            val message = Message(messageContent, isSent = true)
+            val socketEvent = SocketEvent(SocketEventType.CHAT_MESSAGE, chatMessagePayloadJson)
+
+            val messagePayloadString = Gson().toJson(socketEvent)
+            Log.d(tag, "sendMessage: messagePayloadString: $messagePayloadString")
+
+            WebSocketManager.send(messagePayloadString)
+
+            val chatMessageUi = ChatMessageUi(chatMessageInput, isOutgoing = true, chatMessageStatus = ChatMessageStatus.SENT)
 
             _chatUiState.update {
-                it.copy(messages = it.messages + message)
+                it.copy(chatMessageUis = it.chatMessageUis + chatMessageUi)
             }
         }
     }
 
-    fun updateMessages() {
+    fun observeIncomingMessages() {
+        Log.d(tag, "observeIncomingMessages: called")
         viewModelScope.launch {
-            WebSocketManager.message.collect { message ->
+            WebSocketManager.event.collect { message ->
 
-                Log.d("TAG", "chatViewModel: getMessages: message: $message")
+                Log.d(tag, "observeIncomingMessages: event collect: $message")
 
-                if (message.isEmpty()) {
-                    Log.d("TAG", "chatViewModel: getMessages: Message empty")
-                    return@collect
-                }
+                val socketEvent = Gson().fromJson(message, SocketEvent::class.java)
+                val currentUserId = dataStoreManager.getUserId().first()
 
-                Log.d("TAG", "chatViewModel: getMessages: Message not empty")
-
-                val textMessage = Gson().fromJson(message, MessagePayload::class.java).payload
+                val chatMessagePayloadJson = socketEvent.payload
+                val chatMessagePayload = Gson().fromJson(chatMessagePayloadJson, ChatMessagePayload::class.java)
 
                 _chatUiState.update {
-                    it.copy(messages = it.messages + Message(textMessage, false))
+                    it.copy(chatMessageUis = it.chatMessageUis + ChatMessageUi(chatMessagePayload.message, isOutgoing = chatMessagePayload.senderId == currentUserId, ChatMessageStatus.SENT))
                 }
             }
         }
@@ -80,10 +90,11 @@ class ChatViewModel: ViewModel() {
             when (response) {
                 is ApiResponse.SUCCESS -> {
                     _chatUiState.update {
-                        it.copy(messages = response.data)
+                        it.copy(chatMessageUis = response.data)
                     }
                 }
                 is ApiResponse.ERROR -> {
+                    Log.d(tag, "getMessageHistory: error: ${response.message}")
                     _chatUiState.update {
                         it.copy(errorMessage = response.message)
                     }
