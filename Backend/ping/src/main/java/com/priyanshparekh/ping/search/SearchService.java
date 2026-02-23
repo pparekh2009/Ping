@@ -25,6 +25,7 @@ public class SearchService {
                             return SearchDto.builder()
                                     .id(user.getId())
                                     .name(user.getName())
+                                    .email(user.getEmail())
                                     .build();
                         }
                 ).toList();

@@ -9,5 +9,6 @@ public class SearchDto {
 
     private Long id;
     private String name;
+    private String email;
 
 }
